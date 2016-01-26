@@ -1,5 +1,10 @@
 var Flejs = function () {
     var tokens = [];
+    //From http://stackoverflow.com/questions/494035/how-do-you-pass-a-variable-to-a-regular-expression-javascript/494122#494122
+    RegExp.quote = function(str) {
+        return str.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+    };
+    var stop=true;
     return {
         setTokens: function (tokenArray) {
             tokens = tokenArray;
@@ -21,11 +26,18 @@ var Flejs = function () {
                      tokens=[];
                      return;
                 }
+                if (typeof token == "string"){
+                     tokens[i].token=RegExp.quote(token);
+                }
             }
         },
         scan: function (text, callback, end_callback) {
+            stop=false;
             var n=0;
             while (text.length > 0) {
+                if(stop==true){
+                    return;
+                }
                 var flag=false;
                 for (var i = 0; i < tokens.length; i++) {
                     var token = tokens[i].token;
@@ -56,6 +68,9 @@ var Flejs = function () {
                 }
             }
             end_callback(true);
+        },
+        stop:function(){
+            stop=true;
         }
     };
 };
